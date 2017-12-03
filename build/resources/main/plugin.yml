@@ -1,0 +1,23 @@
+name: GamesPlazaPunishmentGUI
+
+main: com.enjin.gamesplazabrasil.GUI
+
+version: 1.0-SNAPSHOT
+
+author: Industrial_Gamer
+
+description: Adiciona uma GUI de punição
+
+commands:
+        punir:
+              description: Abre a GUI de punicao
+        mutar:
+              description: Muta um player
+        warn:
+              description: Dá Warning a um player
+        warn2:
+              description: Dá Warning 2 a um player
+        warn3:
+              description: Dá Warning 3 a um player
+        tempBan:
+              description: Bane um player por um tempo determinado
