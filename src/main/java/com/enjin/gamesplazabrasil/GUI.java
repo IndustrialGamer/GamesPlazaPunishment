@@ -11,6 +11,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
+import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -28,6 +29,8 @@ public class GUI extends JavaPlugin implements Listener{
 
 
     ArrayList<Player> mesagenPun = new ArrayList<Player>();
+    ArrayList <Player> banReason = new ArrayList<Player>();
+
 
 
 
@@ -38,7 +41,20 @@ public class GUI extends JavaPlugin implements Listener{
 
     }
 
+    void onPlayerPreLoginEvent (PlayerLoginEvent e) {
 
+        if (Bukkit.getBanList(BanList.Type.NAME).isBanned(e.getPlayer().getName()) == true){
+
+            e.setKickMessage("You are still banned!");
+            e.disallow (PlayerLoginEvent.Result.KICK_FULL, e.getKickMessage());
+        } else {
+            e.allow();
+            return;
+
+        }
+
+
+    }
 
 
 
@@ -115,7 +131,7 @@ public class GUI extends JavaPlugin implements Listener{
      inv1.setItem(7, warn3);
      inv1.setItem(39, banir);
      inv1.setItem(41, tempbanir);
-   //  inv1.setItem(47, tempmute);
+     inv1.setItem(47, tempmute);
      inv1.setItem(51, mute);
      inv1.setItem(53, fechar);
      inv1.setItem(13, kick);
@@ -297,6 +313,11 @@ if(mesagenPun.contains(e.getPlayer())) {
 
                     p.sendMessage(ChatColor.BLUE + "Warn>" + ChatColor.GREEN + "O player recebeu o warning de nível 1");
                     Bukkit.getServer().broadcastMessage(ChatColor.BLUE + "Punicao> " + ChatColor.GRAY + "O player " + targetWarned.getName() + " recebeu uma punicao!" + ChatColor.DARK_RED + "(Warning nível 1)");
+                    for (Player pl : Bukkit.getOnlinePlayers()){
+
+                        pl.playSound(pl.getLocation(), Sound.BLOCK_ANVIL_FALL, 2f, 02f);
+
+                    }
                     this.getConfig().set(targetWarned.getName() + "Warn", (getConfig().getInt(targetWarned.getName() + "Warn") + 1) );
                     this.saveConfig();
 
@@ -345,7 +366,11 @@ if(mesagenPun.contains(e.getPlayer())) {
                     Bukkit.getServer().broadcastMessage(ChatColor.BLUE + "Punicao> " + ChatColor.GRAY + "O player " + target + " recebeu uma punicao!" + ChatColor.DARK_RED + "(Warning nível 2)");
                     this.getConfig().set(targetWarned.getName() + "Warn", (getConfig().getInt(targetWarned.getName() + "Warn") + 2) );
                     this.saveConfig();
+                    for (Player pl : Bukkit.getOnlinePlayers()){
 
+                        pl.playSound(pl.getLocation(), Sound.BLOCK_ANVIL_FALL, 2f, 02f);
+
+                    }
 
                     mesagenPun.remove(p);
                     mesagenPun.add(targetWarned);
@@ -521,6 +546,52 @@ try{
 
             }
 
+        //Comando ban
+        if (command.getName().equalsIgnoreCase("ban")) {
+            if (args.length == 0) {
+                p.sendMessage(ChatColor.BLUE + "Ban> " + ChatColor.RED + "Sem argumentos!");
+                return  true;
+
+            } else if (args.length < 2){
+
+                p.sendMessage(ChatColor.BLUE + "Banir> " + "Use /ban <player> <mensagemDeBan>");
+
+            } else {
+                if (args.length == 2) {
+                    if (p.hasPermission("op.ban.ban")) {
+                        for (Player target : Bukkit.getServer().getOnlinePlayers()) {
+
+                            String banMessage = args[1];
+                            target.sendMessage(ChatColor.BLUE + "Ban> " + ChatColor.translateAlternateColorCodes('&', banMessage));
+
+                            if (target.getName().equalsIgnoreCase(args[0])) {
+
+                                Bukkit.getBanList(BanList.Type.NAME).addBan(target.getName(),banMessage , null , p.getDisplayName()  );
+                                target.kickPlayer(ChatColor.BLUE + "Ban> " + ChatColor.BOLD + "Voce foi banido por " + ChatColor.DARK_RED + p.getName());
+
+                                Bukkit.getServer().broadcastMessage(ChatColor.BLUE + "Ban> " + ChatColor.BOLD + " " +  ChatColor.GOLD + "O player " + target.getName() + "  foi banido por " + ChatColor.RED + p.getName());
+
+                                p.sendMessage( ChatColor.BLUE + "Ban> " + ChatColor.GREEN + "Voce baniu o player " + target.getName());
+
+
+                                target.sendMessage(ChatColor.BLUE + "Ban> " + "Voce foi banido por " + ChatColor.RED + p.getName());
+                            } else if(!(target.getName().equalsIgnoreCase(args[0]))){
+                                p.sendMessage(ChatColor.BLUE + "Ban> " + ChatColor.RED + "Player nao encontrado");
+                                return  true;
+                            }
+
+                        }
+                    } else{
+
+                        p.sendMessage(ChatColor.BLUE + "Ban> " + ChatColor.RED + "Voce nao tem permissao para banir um player");
+                        return  true;
+
+                    }
+                }
+
+            }
+        }
+
 
 
 
@@ -555,6 +626,8 @@ try{
             case "Banir":
                 //p.performCommand("ban " + target); p.closeInventory();
                 openPBGUI(p);
+                banReason.add(p);
+
                 comando = "ban " + target + "Voce foi banido por " + p.getName();
 
             break;

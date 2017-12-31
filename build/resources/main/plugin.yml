@@ -21,3 +21,5 @@ commands:
               description: Dá Warning 3 a um player
         tempBan:
               description: Bane um player por um tempo determinado
+        ban:
+              description: Bane um player para sempre (MUAHAHAHAHAH)!!!
